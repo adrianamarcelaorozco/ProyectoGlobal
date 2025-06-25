@@ -9,10 +9,10 @@
       "moduleResolution": "node",
       "outDir": "dist",
       "baseUrl": ".",
+     "types": ["node", "@cucumber/cucumber", "@playwright/test"],
       "paths": {
         "*": ["*", "tests/*"]
       }
     },
-    "include": ["tests/**/*.ts"]
+    "include": ["**/*.ts"]
   }
-  
