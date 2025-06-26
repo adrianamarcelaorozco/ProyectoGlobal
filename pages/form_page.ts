@@ -19,49 +19,41 @@ export class FormPage extends BasePage {
   async completeForm(): Promise<void> {
     const targetUrl = "https://globalseguros--qaonb.sandbox.lightning.force.com/lightning/cmp/vlocity_ins__vlocityLWCOmniWrapper?c__target=c%3AgsvFormularyEnglish&c__layout=lightning&c__tabLabel=Perfilamiento";
     await this.openUrl(targetUrl);
-  
-    // 1. Esperar y hacer clic en el combobox
-    const combobox = this.page.locator("//input[@role='combobox' and starts-with(@aria-controls, 'combobox-list')]");
 
-    // Asegúrate de que el combobox esté visible
+    const combobox = this.page.locator("//input[@role='combobox' and starts-with(@aria-controls, 'combobox-list')]");
     await combobox.waitFor({ state: 'visible', timeout: 15000 });
     await combobox.scrollIntoViewIfNeeded();
-
-    // Haz clic hasta que el dropdown se abra (aria-expanded='true')
     await combobox.click();
+
     await this.page.waitForFunction(
       el => el && el.getAttribute('aria-expanded') === 'true',
       await combobox.elementHandle(),
       { timeout: 10000 }
     );
 
-    // Ahora sí espera la opción
     const option = this.page.locator("//div[@role='option']//span[text()='CEDULA DE CIUDADANIA']");
     await option.waitFor({ state: 'visible', timeout: 10000 });
     await option.scrollIntoViewIfNeeded();
     await option.click();
-    // 3. Ingresar número aleatorio
+
     const numeroIdentificacion = generarIdentificacionAleatoria();
-    //await this.enterText("//input[contains(@class, 'vlocity-input') and @type='text']", numeroIdentificacion);
     await this.enterText("//input[@placeholder='Ingresa el Número de documento']", numeroIdentificacion);
 
-    // 4. Buscar asesor
     await this.enterText(
       "//input[contains(@class, 'slds-input') and @role='combobox' and contains(@aria-autocomplete, 'list')]",
       config.ASESOR
     );
-  
+
     const dropdownOption = this.page.locator("//div[@role='option']//span[contains(text(), 'PROYECTA-T LTDA-BOGOTA')]");
     await dropdownOption.waitFor({ state: 'visible', timeout: 10000 });
     await dropdownOption.click();
   }
-  
+
   async completeFormEmail(): Promise<void> {
     const targetUrl = "https://globalseguros--qaonb.sandbox.lightning.force.com/lightning/cmp/vlocity_ins__vlocityLWCOmniWrapper?c__target=c%3AgsvFormularyEnglish&c__layout=lightning&c__tabLabel=Perfilamiento";
     await this.openUrl(targetUrl);
 
     await this.page.locator("//span[contains(text(), 'Email o Celular')]").click();
-
     await this.enterText("//input[@placeholder='Ingrese el número telefónico']", generarNumeroTelefono());
     await this.enterText("//input[@placeholder='Ingrese el correo electrónico']", generarCorreoAleatorio());
 
@@ -72,12 +64,11 @@ export class FormPage extends BasePage {
   }
 
   async botonSiguiente(): Promise<void> {
-    const boton = this.page.locator("//button[.//span[text()='Siguiente']]").first(); // ← Aquí está el fix
+    const boton = this.page.locator("//button[.//span[text()='Siguiente']]").first();
     await boton.scrollIntoViewIfNeeded();
     await boton.click();
     console.log("Formulario inicial completado");
   }
-  
 
   async validateSecondForm(): Promise<void> {
     await this.enterText("//input[@placeholder='Nombres']", config.NOMBRE);
@@ -90,8 +81,6 @@ export class FormPage extends BasePage {
     await ciudadInput.scrollIntoViewIfNeeded();
     await ciudadInput.fill(config.CIUDAD);
 
-
-    // Esperar la opción "BOGOTA" y hacer clic
     const opcionBogota = this.page.locator("//span[text()='BOGOTA']");
     await opcionBogota.waitFor({ state: 'visible', timeout: 10000 });
     await opcionBogota.click();
@@ -100,17 +89,28 @@ export class FormPage extends BasePage {
     await telefonoInput.waitFor({ state: 'visible', timeout: 10000 });
     await telefonoInput.scrollIntoViewIfNeeded();
     await telefonoInput.fill(config.TELEFONO);
-    
+
     const eventoInput = this.page.getByRole('combobox', { name: /evento/i });
     await eventoInput.waitFor({ state: 'visible', timeout: 10000 });
     await eventoInput.scrollIntoViewIfNeeded();
     await eventoInput.fill(config.EVENTO);
-    
-    // seleccionar la opción
+
     const eventoOpcion = this.page.locator("//span[contains(text(), 'FERIA DEL LIBRO 2024')]");
     await eventoOpcion.click();
-    
-    await this.page.locator('input.vlocity-input[type="checkbox"]').first().check();
+
+    // Scroll y clic en checkbox visual
+    await this.page.keyboard.press('End');
+    await this.page.waitForTimeout(1500);
+
+    const fauxCheckbox = this.page.locator('span.slds-checkbox_faux');
+    await fauxCheckbox.waitFor({ state: 'visible', timeout: 10000 });
+    await fauxCheckbox.scrollIntoViewIfNeeded();
+    await fauxCheckbox.click();
+
+    const checkbox = this.page.locator('input.vlocity-input[type="checkbox"]').first();
+    await expect(checkbox).toBeChecked();
+
+    console.log("✅ Checkbox marcado correctamente");
   }
 
   async validateSecondFormEmail(): Promise<void> {
@@ -134,42 +134,26 @@ export class FormPage extends BasePage {
     await this.enterText('//*[@id="inputId-322"]', config.EVENTO);
     await this.page.locator("//span[text()='FERIA DEL LIBRO 2024']").click();
 
-  
-    // Scroll dentro del contenedor que sí tiene el scroll
-await this.page.evaluate(() => {
-  const scrollContainer = document.querySelector('.slds-form-element.slds-form-container');
-  if (scrollContainer) {
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
-  }
-});
-await this.page.waitForTimeout(1000);
-// 2. Esperar que el "checkbox visual" esté visible (el span clickeable)
-const fauxCheckbox = this.page.locator('span.slds-checkbox_faux');
-await fauxCheckbox.waitFor({ state: 'visible', timeout: 10000 });
-await fauxCheckbox.scrollIntoViewIfNeeded();
-await fauxCheckbox.click();
+    await this.page.keyboard.press('End');
+    await this.page.waitForTimeout(1500);
 
-// 3. Scroll solo al faux-checkbox (por si está dentro de un contenedor)
-await fauxCheckbox.scrollIntoViewIfNeeded();
+    const fauxCheckbox = this.page.locator('span.slds-checkbox_faux');
+    await fauxCheckbox.waitFor({ state: 'visible', timeout: 10000 });
+    await fauxCheckbox.scrollIntoViewIfNeeded();
+    await fauxCheckbox.click();
 
-// 4. Click directamente sobre el span visual (NO el input)
-await fauxCheckbox.click();
+    const checkbox = this.page.locator('input.vlocity-input[type="checkbox"]').first();
+    await expect(checkbox).toBeChecked();
 
-// 5. Validar que el input asociado ahora esté checked
-const checkbox = this.page.locator('input.vlocity-input[type="checkbox"]').first();
-await expect(checkbox).toBeChecked();
-
-console.log("✅ Checkbox marcado correctamente vía slds-checkbox_faux");
-
+    console.log("✅ Checkbox marcado correctamente vía validateSecondFormEmail()");
   }
 
   async botonGuardaryContinuar(): Promise<void> {
     const boton = this.page.getByRole('button', { name: 'Guardar y continuar' });
     await boton.waitFor({ state: 'visible', timeout: 10000 });
-    await boton.click();    
+    await boton.click();
     console.log("Validación Datos de contacto");
   }
- 
 }
 
 export default FormPage;
