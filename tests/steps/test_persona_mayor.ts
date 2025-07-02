@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
-import { page} from '../../support/hooks';
 import ConsultaPage from '../../pages/consulta_page';
 import {FormPage} from '../../pages/form_page';
 import PersonalFormPage from '../../pages/personal_form_page';
@@ -16,36 +15,42 @@ let metas: MetasFormPage;
 let cotizarPage: CotizarFormPage;
 
 
-Given('que ingreso al sistema como persona mayor', async function () {
-  consulta = new ConsultaPage(this.page);
-  await consulta.login();
-});
-
-When('completo los formularios como persona mayor', async function () {
+When('completo los formularios iniciales como persona mayor', async function () {
   form = new FormPage(this.page);
   await form.completeForm();
   await form.botonSiguiente();
   await form.validateSecondForm();
   await form.botonGuardaryContinuar();
 
+});
+
+When('realizo el formulario como persona mayor y continuo', async function () {
+
   pform = new PersonalFormPage(this.page);
   await pform.completarFormularioMayor();
   await pform.clickGuardar();
+});
 
-  finan = new FinancieroFormPage(page);
+When('completo el perfil financiero como persona mayor y continuo', async function () {
+  finan = new FinancieroFormPage(this.page);
   await finan.perfilFinanciero();
   await finan.buttonSiguiente();
+});
 
-  metas = new MetasFormPage(page);
+When('defino mis metas financieras como persona mayor y continuo', async function () {
+  metas = new MetasFormPage(this.page);
   await metas.metasFinancieras();
   await metas.buttonCotizar();
 });
 
-Then('se completa el proceso de cotización de persona mayor', async function () {
+When('realizo la cotización', async function () {
   cotizarPage = new CotizarFormPage(this.page);
   await cotizarPage.datosAsegurado();
   await cotizarPage.datosBeneficiario();
   await cotizarPage.botonGuardar();
+});
+
+Then('debería poder simular diferentes productos y finalizar correctamente', async function () {
   await cotizarPage.datosColegio();
-  await cotizarPage.botonGuardar();
+  await cotizarPage.botonGuardar(); // o el método que finaliza la simulación si tienes uno
 });

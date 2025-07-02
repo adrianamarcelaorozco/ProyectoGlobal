@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import BasePage from './base_page';
 import config from '../config/config';
 import { generarNombreCompleto, generarIdentificacionAleatoria } from '../utils/helpers';
@@ -9,10 +9,12 @@ export class CotizarFormPage extends BasePage {
   }
 
   async datosAsegurado(): Promise<void> {
-    const botonContinuar = this.page.locator("//button[.//span[text()='Guardar y continuar']]");
-    await botonContinuar.scrollIntoViewIfNeeded();
-    await botonContinuar.click();
+    const boton = this.page.locator("//button[.//span[text()='Guardar y continuar']]").first();
+    await boton.scrollIntoViewIfNeeded();
+    await boton.click();
+    console.log("Formulario inicial datos de asegurado completado");
   }
+
 
   async datosBeneficiario(): Promise<void> {
     const [nombre, apellido1, apellido2] = generarNombreCompleto();
@@ -28,18 +30,23 @@ export class CotizarFormPage extends BasePage {
     await this.page.locator("//input[@placeholder='Segundo Apellido']").fill(apellido2);
 
     // Seleccionar tipo de documento
-    const combobox = this.page.locator("//div[contains(@class, 'slds-combobox__form-element')]//input");
-    await combobox.click();
+    const tipoDocInput = this.page.getByRole('combobox', { name: 'Tipo de documento' });
+    await tipoDocInput.click();
 
     const optionTipoDoc = this.page.locator("//*[contains(@class, 'slds-listbox')]//span[text()='Tarjeta de Identidad']");
     await optionTipoDoc.click();
 
     // Número de documento
     await this.page.locator("//input[@placeholder='Ingresar número']").fill(numero.toString());
+    const fechaInput = this.page.getByLabel('Fecha de Nacimiento'); // o getByPlaceholder('dd-mm-yyyy') si aplica
+    
+    const fechaInput = this.page.getByLabel('Fecha de Nacimiento');
 
-    // Fecha de nacimiento
-    await this.page.locator("//input[@aria-label='Fecha de Nacimiento']").fill('18-02-2020');
-
+    await fechaInput.evaluate((input: HTMLInputElement, value: string) => {
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, '18-02-2020');
     // Selección de sexo
     const sexoInput = this.page.locator('//label[.//span[text()="Sexo"]]/ancestor::div[contains(@class, "slds-form-element")]//input[@role="combobox"]');
     await sexoInput.click();
@@ -49,13 +56,16 @@ export class CotizarFormPage extends BasePage {
     await opcionFemenino.click();
 
     await this.page.waitForTimeout(3000);
+    console.log("Formulario inicial datos de beneficiario completado");
   }
 
   async botonGuardar(): Promise<void> {
-    const botonGuardar = this.page.locator("//button[span[text()='Guardar y continuar']]");
-    await botonGuardar.scrollIntoViewIfNeeded();
-    await botonGuardar.click();
-    await this.page.waitForTimeout(3000);
+    const botonesGuardar = this.page.getByRole('button', { name: 'Guardar y continuar' });
+    console.log(await botonesGuardar.count()); // útil para depuración
+    const primerBoton = botonesGuardar.nth(0); // o usa .nth(1) si el segundo es el correcto
+    await primerBoton.scrollIntoViewIfNeeded();
+    await primerBoton.click();
+
     console.log("Validación Información beneficiario");
   }
 
@@ -90,5 +100,5 @@ export class CotizarFormPage extends BasePage {
     await optionPrekinder.click();
 
     console.log("Prekinder seleccionado correctamente");
-  }
+  }  
 }

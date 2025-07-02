@@ -15,9 +15,7 @@ export class MetasFormPage {
     }
   }
   
-
   async metasFinancieras() {
-   
     await this.seleccionarObjetivos([
       'Realizar un viaje',
       'Adquirir una casa propia',
@@ -41,4 +39,10 @@ export class MetasFormPage {
     await botonRegresar.click();
   }
 
+  async buttonComprador(): Promise<void> {
+    const botonComprador =this.page.getByRole('button', { name: 'Regresar al comparador' });  
+    await botonComprador.scrollIntoViewIfNeeded();
+    await botonComprador.waitFor({ state: 'visible', timeout: 5000 });
+    await botonComprador.click();
+  }
 }
