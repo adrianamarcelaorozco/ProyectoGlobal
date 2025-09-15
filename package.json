@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "test": "cucumber-js tests/features --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts",
-  "test:persona_mayor": "cucumber-js tests/features/test_persona_mayor.feature --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts"
+  "scripts": {
+    "test": "cucumber-js tests/features --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts",
+    "test:persona_mayor": "cucumber-js tests/features/test_persona_mayor.feature --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,6 @@
     "@types/node": "^24.0.3",
     "playwright": "^1.53.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
