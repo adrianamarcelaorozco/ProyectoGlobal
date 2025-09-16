@@ -1,29 +1,26 @@
 {
-  "name": "proyectoglobal",
+  "name": "proyectoglobalcotizacion",
   "version": "1.0.0",
-  "description": "",
+  "description": "**Crear el entorno virtual**: ```bash python -m venv venv source venv/bin/activate   # En Windows: venv\\Scripts\\activate ``` **Instalar los requerimientos**: ```bash python -m venv venv source venv/bin/activate **En Windows**: venv\\Scripts\\activate ```",
   "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
-    "test": "cucumber-js tests/features --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts",
-    "test:persona_mayor": "cucumber-js tests/features/test_persona_mayor.feature --require-module ts-node/register --require support/hooks.ts --require tests/steps/**/*.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adrianamarcelaorozco/ProyectoGlobal.git"
+    "url": "git+https://github.com/adrianamarcelaorozco/proyectoglobalcotizacion.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/adrianamarcelaorozco/ProyectoGlobal/issues"
+    "url": "https://github.com/adrianamarcelaorozco/proyectoglobalcotizacion/issues"
   },
-  "homepage": "https://github.com/adrianamarcelaorozco/ProyectoGlobal#readme",
+  "homepage": "https://github.com/adrianamarcelaorozco/proyectoglobalcotizacion#readme",
   "devDependencies": {
-    "@cucumber/cucumber": "^11.3.0",
-    "@playwright/test": "^1.53.0",
-    "@types/node": "^24.0.3",
-    "playwright": "^1.53.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "@playwright/test": "^1.54.1"
   }
 }

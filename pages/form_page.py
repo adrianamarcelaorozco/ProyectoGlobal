@@ -117,9 +117,11 @@ class FormPage(BasePage):
 
         element_email = self.driver.find_element(By.XPATH, "//input[@required and @placeholder='Correo electrónico']")
         element_email.send_keys(config.EMAIL)
-
-        self.enter_text(By.XPATH, '//*[@id="inputId-336"]', config.CIUDAD)  # Datos de la ciudad
-
+        self.enter_text(
+            By.XPATH,
+            '//label[contains(normalize-space(.), "Ciudad o Municipio de residencia")]/following::input[1]',
+            config.CIUDAD
+        )
         dropdown_option = WebDriverWait(self.driver, 10).until(  # Selección de la ciudad (con una espera explícita)
             EC.visibility_of_element_located(
                 (By.XPATH, "//span[contains(@class, 'slds-listbox__option-text') and text()='BOGOTA']")
@@ -127,12 +129,25 @@ class FormPage(BasePage):
         )
         ActionChains(self.driver).move_to_element(dropdown_option).perform()  # Desplazarse al elemento
         dropdown_option.click()  # Selección de la opción       
-        hidden_field = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input25-340"]')))  # validar que el departamento sea el correcto
-        hidden_value = hidden_field.get_attribute(config.DEPARTAMENTO)  # Obtener valor de un campo oculto
-        country_field = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="input25-340"]'))) # validar que el pais sea el correcto
-        country_value = country_field.get_attribute(config.PAIS)  # Obtener valor de país
+        # Departamento
+        hidden_field = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//label[normalize-space()="Departamento"]/following::input[1]')
+            )
+        )
+        hidden_value = hidden_field.get_attribute("value")  # Obtener valor del campo oculto
+        # País
+        country_field = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//label[normalize-space()="País"]/following::input[1]')
+            )
+        )
+        country_value = country_field.get_attribute("value")  # Obtener valor de país
+
         input_field = WebDriverWait(self.driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//input[@type='tel']"))
+        EC.presence_of_element_located(
+            (By.XPATH, '//label[contains(normalize-space(), "Celular")]/following::input[1]')
+            )
         )
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_field)
         self.driver.execute_script("arguments[0].click();", input_field)
@@ -222,6 +237,8 @@ class FormPage(BasePage):
         )
         self.driver.execute_script("arguments[0].scrollIntoView();", checkbox)  # Desplaza el checkbox a la vista.
         ActionChains(self.driver).move_to_element(checkbox).click().perform()  # Mueve al checkbox y lo selecciona.
+        pass
+
 
     def boton_siguiente2(self):
         boton = WebDriverWait(self.driver, 15).until(

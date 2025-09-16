@@ -65,11 +65,17 @@ class FinancieroFormPage(BasePage):
         ahorros_input.send_keys(config.VALOR_APROX)
         time.sleep(2) # Esperar 2 segundos para asegurar que el valor se haya ingresado correctamente
         checkbox_labels = [
-            "Asegurar la educación superior de mis hijos",
-            "Estudiar un posgrado",
-            "Comprar casa"
+        "Asegurar la educación superior de mis hijos",
+        "Estudiar un posgrado",
+        "Comprar casa"
         ]
-        # Opciones que quieres seleccionar
+
+        for label in checkbox_labels:
+            checkbox = wait.until(EC.element_to_be_clickable((
+                By.XPATH, f'//label[span[normalize-space()="{label}"]]'
+            )))
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
+        checkbox.click()
         transportes = ["Bicicleta", "Carro Particular", "Patineta"]
 
         for transporte in transportes:

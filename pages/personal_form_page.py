@@ -9,49 +9,88 @@ from selenium.webdriver.common.keys import Keys
 
 class PersonalFormPage(BasePage):
     def personal_form_mayor(self):
+        time.sleep(5)
         self.enter_text(By.XPATH, "//input[@data-id='date-picker-slds-input']", '12/28/1984') # Ingresar la fecha en el campo de fecha usando el input de tipo date
         # Haz clic en el combobox
         wait = WebDriverWait(self.driver, 15)
         # Espera hasta que el label "Sexo" esté presente
-        label_sexo = wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//label[@for="comboboxId-387" and contains(., "Sexo")]')
-        ))
-        # Scroll al label
+        # Esperar el label "Sexo"
+        label_sexo = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//label[contains(normalize-space(.), "Sexo")]')
+            )
+        )
+
+        # Scroll al label para asegurar visibilidad
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", label_sexo)
-        time.sleep(1)  # Espera que la animación termine (por si hay transiciones de Salesforce)        
-        #Encuentra el input que está cerca del label "Sexo"
-        dropdown_input = self.driver.find_element(By.XPATH, '//*[@id="comboboxId-387"]')  
+        time.sleep(1)
+
+        # Encontrar el input que sigue después del label "Sexo"
+        dropdown_input = self.driver.find_element(
+            By.XPATH, '//label[contains(normalize-space(.), "Sexo")]/following::input[1]'
+        )
         dropdown_input.click()
-        time.sleep(2)
-        wait = WebDriverWait(self.driver, 10)  # Configura la espera explícita para el siguiente paso.
-        M_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//div[@role="option" and .//span[text()="Masculino"]]')))  # Espera hasta que la opción "01" sea clickeable.
-        M_option.click()  # Hace clic en la opción "01"
-        #dropdown_input.send_keys('Masculino')
+
+        # Seleccionar opción (ejemplo: "Masculino")
+        option_masculino = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, '//lightning-base-combobox-item[@data-value="Masculino"] | //div[@data-value="Masculino"]')
+            )
+        )
+        option_masculino.click()
         time.sleep(1)  # Deja que se rendericen las opciones
         # 4️⃣ Seleccionar opción "Masculino"
-        radio = self.wait_for_element(By.XPATH, "//input[@type='radio' and @value='Pareja con hijos menores de edad']")  # Espera hasta que el radio button sea visible.
-        self.driver.execute_script("arguments[0].click();", radio)  # Usa Javascript para hacer clic en el radio button.
-        dropdown = self.driver.find_element(By.XPATH, '//*[@id="comboboxId-412"]')  # Encuentra el dropdown.
+        radio_label = wait.until(EC.element_to_be_clickable((
+        By.XPATH, '//label[span[normalize-space()="Pareja con hijos"]]'
+        )))
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_label)
+        radio_label.click()
+        dropdown = self.driver.find_element(By.XPATH, '//label[contains(normalize-space(.), "¿Cuántas personas dependen de ti?")]/following::input[1]')  # Encuentra el dropdown.
         self.driver.execute_script("arguments[0].scrollIntoView();", dropdown)  # Desplaza el dropdown a la vista si es necesario.
         dropdown.click()  # Hace clic para desplegar las opciones del dropdown.
         wait = WebDriverWait(self.driver, 10)  # Configura la espera explícita para el siguiente paso.
         one_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//div[@role="option" and .//span[text()="01"]]')))  # Espera hasta que la opción "01" sea clickeable.
         one_option.click()  # Hace clic en la opción "01".
         time.sleep(5)  # Pausa de 2 segundos para garantizar que la acción se complete.
-        self.enter_text(By.XPATH, '/html/body/div[4]/div[1]/section/div[1]/div[2]/div[2]/div[1]/div/div/div/div/div/c-gsv-formulary-english/div/article/div[2]/vlocity_ins-omniscript-step[5]/div[3]/slot/vlocity_ins-omniscript-block/div/div/section/fieldset/slot/vlocity_ins-omniscript-block[1]/div/div/section/fieldset/slot/vlocity_ins-omniscript-text[1]/slot/c-input/div/div[2]/input', config.NOMBRED)  # Ingresa el nombre en el campo correspondiente.
-        self.enter_text(By.XPATH, '/html/body/div[4]/div[1]/section/div[1]/div[2]/div[2]/div[1]/div/div/div/div/div/c-gsv-formulary-english/div/article/div[2]/vlocity_ins-omniscript-step[5]/div[3]/slot/vlocity_ins-omniscript-block/div/div/section/fieldset/slot/vlocity_ins-omniscript-block[1]/div/div/section/fieldset/slot/vlocity_ins-omniscript-text[2]/slot/c-input/div/div[2]/input', config.PAPELLIDOD)  # Ingresa el primer apellido en el campo correspondiente.
-        self.enter_text(By.XPATH, '/html/body/div[4]/div[1]/section/div[1]/div[2]/div[2]/div[1]/div/div/div/div/div/c-gsv-formulary-english/div/article/div[2]/vlocity_ins-omniscript-step[5]/div[3]/slot/vlocity_ins-omniscript-block/div/div/section/fieldset/slot/vlocity_ins-omniscript-block[1]/div/div/section/fieldset/slot/vlocity_ins-omniscript-text[3]/slot/c-input/div/div[2]/input', config.SAPELLIDOD)  # Ingresa el segundo apellido en el campo correspondiente.
+        # Campo: Nombres
+        nombre_input = wait.until(EC.presence_of_element_located((
+            By.XPATH, '//label[span[normalize-space()="Nombres"]]/following::input[1]'
+        )))
+        self.enter_text(By.XPATH, '//label[span[normalize-space()="Nombres"]]/following::input[1]', config.NOMBRED)
+
+        # Campo: Primer Apellido
+        papellido_input = wait.until(EC.presence_of_element_located((
+            By.XPATH, '//label[span[normalize-space()="Primer Apellido"]]/following::input[1]'
+        )))
+        self.enter_text(By.XPATH, '//label[span[normalize-space()="Primer Apellido"]]/following::input[1]', config.PAPELLIDOD)
+
+        # Campo: Segundo Apellido
+        sapellido_input = wait.until(EC.presence_of_element_located((
+            By.XPATH, '//label[span[normalize-space()="Segundo Apellido"]]/following::input[1]'
+        )))
+        self.enter_text(By.XPATH, '//label[span[normalize-space()="Segundo Apellido"]]/following::input[1]', config.SAPELLIDOD)
+
         time.sleep(5)
-        dropdown_input_h = self.driver.find_element(By.XPATH, '//*[@id="comboboxId-426"]')  
-        dropdown_input_h.click()
-        time.sleep(2)
-        wait = WebDriverWait(self.driver, 10)  # Configura la espera explícita para el siguiente paso.
-        H_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//div[@role="option" and .//span[text()="Hijo/a"]]')))  # Espera hasta que la opción "01" sea clickeable.
-        H_option.click()  # Hace clic en la opción "01"
-        #dropdown_input.send_keys('Masculino')
-        time.sleep(1)  # Deja que se rendericen las opciones
-        date_input = self.driver.find_element(By.XPATH, '//*[@id="date-input-430"]')  # Encuentra el campo de fecha.
-        date_input.send_keys('01/18/1970')  # Ingresa la fecha manualmente (por ejemplo, 01/18/1970).
+       # Abrir el combo "Parentesco"
+        parentesco_dropdown = wait.until(EC.element_to_be_clickable((
+            By.XPATH, '//label[span[normalize-space()="Parentesco"]]/following::input[1]'
+        )))
+        parentesco_dropdown.click()
+
+        # Seleccionar "Hijo/a"
+        hijo_option = wait.until(EC.element_to_be_clickable((
+            By.XPATH, '//div[@role="option" and .//span[normalize-space()="Hijo/a"]]'
+        )))
+        hijo_option.click()
+
+        # Campo de fecha "Fecha de nacimiento"
+        date_input = wait.until(EC.element_to_be_clickable((
+            By.XPATH, '//label[normalize-space()="Fecha de nacimiento"]/following::input[@type="text"][1]'
+        )))
+        date_input.clear()
+        date_input.send_keys("01/18/1970")
+        date_input.send_keys(Keys.TAB)  # Para cerrar el datepicker si se abre  
+        time.sleep(5)
         pass
 
     def boton_guardar(self):

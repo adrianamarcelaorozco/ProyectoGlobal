@@ -40,42 +40,30 @@ class ProductoFormPage(BasePage):
         opcion_2038.click()
         print("✅ Año 2038 seleccionado")
         time.sleep(2)
-        try:
-        # 1) Esperar a que el input después de la etiqueta "Observaciones" sea clickeable
-            input_observaciones = WebDriverWait(self.driver, 20).until(
-                EC.element_to_be_clickable((
-                    By.XPATH,
-                    "//label[normalize-space(text())='Observaciones']/following::input[1]"
-                ))
-            )
-
-            # 2) Scroll al campo
-            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_observaciones)
-
-            # 3) Clic en el campo
-            input_observaciones.click()
-            print("✅ Se hizo clic en Observaciones")
-
-            # 4) Limpiar por si tiene texto previo
-            input_observaciones.clear()
-
-            # 5) Ingresar el texto "Ninguno"
-            input_observaciones.send_keys("Ninguno")
-            print("✍️ Texto 'Ninguno' ingresado")
-        except Exception as e:
-            print(f"❌ Error al interactuar con Observaciones: {e}")
-
-    pass
-
-    def lista_producto(self):
-        wait = WebDriverWait(self.driver, 30)
-
-        # Buscar el input asociado al label 'Producto'
-        producto = wait.until(EC.element_to_be_clickable((
-            By.XPATH,
-            "//label[normalize-space(text())='Producto']/following::input[1]"
+        # --- Observaciones ---
+        observaciones_input = wait.until(EC.element_to_be_clickable((
+            By.XPATH, "//label[normalize-space()='Observaciones']/following::input[1]"
         )))
-        return producto
+        observaciones_input.click()
+        observaciones_input.clear()
+        observaciones_input.send_keys("Ninguno")
+        print("✅ Observaciones llenado")
+
+        # --- Producto ---
+     # 1) Hacer clic en el input del combobox "Producto"
+        # 1. Hacer clic en el input del combobox (sin ID fijo)
+        nombre_producto = "Global Universidad Segura Plus"
+        producto_input = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//input[@role='combobox']"))
+        )
+        producto_input.click()
+
+        # 2. Seleccionar la opción por el atributo data-label
+        opcion = wait.until(
+            EC.element_to_be_clickable((By.XPATH, f"//div[@role='option' and @data-label='{nombre_producto}']"))
+        )
+        opcion.click()
+        print(f"✅ Producto '{nombre_producto}' seleccionado")
 
 
     def seleccionar_tarifa_septiembre(self, timeout=20):
@@ -118,29 +106,30 @@ class ProductoFormPage(BasePage):
     
 
     def datos_producto_segura_plus(self):
-        producto_elemento = self.lista_producto()          
-        self.driver.execute_script("arguments[0].scrollIntoView();", producto_elemento)
-        time.sleep(5)
-        # Esperar a que aparezca la opción "Global Universidad Segura Plus"
-        producto_elemento = self.lista_producto()
-        # Mover el cursor sobre la opción y hacer clic en ella
-        actions = ActionChains(self.driver)
-        self.driver.execute_script("arguments[0].scrollIntoView();", producto_elemento)
-        actions.move_to_element(producto_elemento).pause(1).click().perform()
-        time.sleep(5)
-         # Presiona ARROW_DOWN para moverse a la segunda opción
-        for _ in range(1):  # Repite 4 veces
-            producto_elemento.send_keys(Keys.ARROW_DOWN)
-            time.sleep(1)
-        producto_elemento.send_keys(Keys.ENTER)  # Seleccionar la opción
+        wait = WebDriverWait(self.driver, 20)
+        # 1. Hacer clic en el input del combobox de Producto
+        producto_input = wait.until(EC.element_to_be_clickable((
+            By.XPATH, '//label[normalize-space()="Producto"]/following::input[@role="combobox"][1]'
+        )))
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", producto_input)
+        producto_input.click()
+        print("📌 Combobox Producto abierto")
+
+        # 2. Escribir el texto del producto
+        producto_input.send_keys("Global Universidad Segura Plus")
+        time.sleep(1)  # pequeña pausa para que cargue la lista
+
+        # 3. Esperar a que aparezca la opción correcta
+        opcion = wait.until(EC.element_to_be_clickable((
+            By.XPATH, '//span[@class="slds-listbox__option-text" and text()="Global Universidad Segura Plus"]'
+        )))
+
+        # 4. Hacer clic en la opción
+        opcion.click()
+        print("✅ Global Universidad Segura Plus seleccionado")
         #MES
         self.seleccionar_tarifa_septiembre()
         time.sleep(5)
-        #asegurado
-        producto_asegurado = self.lista_asegurado()
-        # Mover el cursor sobre la opción y hacer clic en ella
-        
-        time.sleep(7)
     pass
 
     def datos_producto_segura_plus_semestre(self):
