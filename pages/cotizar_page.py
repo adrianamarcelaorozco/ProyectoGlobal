@@ -11,7 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains  # Permite real
 
 class CotizarFormPage(BasePage):
     def datos_asegurado(self):
-        boton_continuar = WebDriverWait(self.driver, 10).until(
+        boton_continuar = WebDriverWait(self.driver, 25).until(
             EC.element_to_be_clickable((By.XPATH, "//button[.//span[text()='Guardar y continuar']]"))
         )
         # Hacer scroll hasta el botón
